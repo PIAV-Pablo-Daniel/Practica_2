@@ -1,0 +1,9 @@
+# Visión por computador y procesamiento de imágenes/vídeo
+opencv-python>=4.8.0
+
+# Operaciones matriciales y álgebra lineal
+numpy>=1.24.0
+
+# Opcional: visualización de gráficos y soporte si trabajas en Jupyter Notebooks
+matplotlib>=3.7.0
+ipykernel>=6.25.0
