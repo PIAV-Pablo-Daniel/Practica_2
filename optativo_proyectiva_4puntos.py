@@ -52,7 +52,7 @@ while True:
         cv.imshow('Resultado Proyectivo', res)
 
     tecla = cv.waitKey(20) & 0xFF
-    if tecla == 27:
+    if tecla == 27 or geo.ventana_cerrada('Origen', 'Destino'):
         break
     elif tecla == ord('r'):
         p1.clear()

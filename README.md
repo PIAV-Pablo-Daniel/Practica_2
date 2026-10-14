@@ -106,9 +106,9 @@ Ventana controlada con trackbars:
 
 | Trackbar | Significado |
 |---|---|
-| `Tx`, `Ty` | Magnitud de la traslación en X e Y (el centro del trackbar equivale a 0, así se admiten valores negativos) |
-| `Angulo` | Ángulo de giro en grados (0–360) |
-| `Giro X`, `Giro Y` | Centro de giro (punto **rojo**) |
+| `Traslacion X`, `Traslacion Y` | Magnitud de la traslación en X e Y (el centro del trackbar equivale a 0, así se admiten valores negativos) |
+| `Rotacion (grados)` | Ángulo de giro en grados (0–360) |
+| `Rotacion centro X`, `Rotacion centro Y` | Centro de giro (punto **rojo**) |
 | `Escala X (%)`, `Escala Y (%)` | Factores de escala. Si son iguales, el escalado es uniforme; si son distintos, no uniforme |
 | `Escala centro X`, `Escala centro Y` | Centro de escalado (punto **azul**) |
 
@@ -129,9 +129,9 @@ La ventana de proyección se traza con el ratón. Al hacer clic, la esquina más
 
 Trackbars para los coeficientes del modelo de lente de OpenCV:
 
-- **Radiales `k1`, `k2`, `k3`** en el rango [-1, 1]. Con valores positivos la imagen se deforma en **barril**; con negativos, en **cojín**.
-- **Tangenciales `p1`, `p2`** en el rango [-0.1, 0.1]. Tienen un efecto mucho mayor, por eso el rango es más pequeño.
-- **`Rejilla`** dibuja líneas rectas sobre la imagen para que se aprecie cómo se curvan.
+- **Radiales (`Distorsion radial k1`, `k2`, `k3`)** en el rango [-1, 1]. Con valores positivos la imagen se deforma en **barril**; con negativos, en **cojín**.
+- **Tangenciales (`Distorsion tangencial p1`, `p2`)** en el rango [-0.1, 0.1]. Tienen un efecto mucho mayor, por eso el rango es más pequeño.
+- **`Mostrar rejilla`** dibuja líneas rectas sobre la imagen para que se aprecie cómo se curvan.
 
 Se usa una matriz de cámara `K` con focal igual al ancho de la imagen y el centro óptico en el centro, y se aplica `cv.undistort`.
 

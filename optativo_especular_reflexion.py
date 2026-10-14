@@ -45,7 +45,7 @@ while True:
 
     cv.imshow('Reflexion Recta', vista)
     tecla = cv.waitKey(20) & 0xFF
-    if tecla == 27:
+    if tecla == 27 or geo.ventana_cerrada('Reflexion Recta'):
         break
     elif tecla == ord('r'):
         pts.clear()
