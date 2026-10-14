@@ -38,20 +38,20 @@ def raton(evento, x, y, flags, param):
             # Guardamos dónde empieza el arrastre y la traslación que había
             arrastrando = True
             raton_ini_x, raton_ini_y = x, y
-            tx_ini = cv.getTrackbarPos('Tx', WIN)
-            ty_ini = cv.getTrackbarPos('Ty', WIN)
+            tx_ini = cv.getTrackbarPos('Traslacion X', WIN)
+            ty_ini = cv.getTrackbarPos('Traslacion Y', WIN)
         elif evento == cv.EVENT_MOUSEMOVE and arrastrando:
             # Nueva traslación = la inicial + lo que se ha movido el ratón
             nuevo_tx = int(np.clip(tx_ini + (x - raton_ini_x), 0, ancho * 2))
             nuevo_ty = int(np.clip(ty_ini + (y - raton_ini_y), 0, alto * 2))
-            cv.setTrackbarPos('Tx', WIN, nuevo_tx)
-            cv.setTrackbarPos('Ty', WIN, nuevo_ty)
+            cv.setTrackbarPos('Traslacion X', WIN, nuevo_tx)
+            cv.setTrackbarPos('Traslacion Y', WIN, nuevo_ty)
         elif evento == cv.EVENT_LBUTTONUP:
             arrastrando = False
 
     elif modo == 'g' and evento == cv.EVENT_LBUTTONDOWN:
-        cv.setTrackbarPos('Giro X', WIN, int(np.clip(x, 0, ancho)))
-        cv.setTrackbarPos('Giro Y', WIN, int(np.clip(y, 0, alto)))
+        cv.setTrackbarPos('Rotacion centro X', WIN, int(np.clip(x, 0, ancho)))
+        cv.setTrackbarPos('Rotacion centro Y', WIN, int(np.clip(y, 0, alto)))
 
     elif modo == 'e' and evento == cv.EVENT_LBUTTONDOWN:
         cv.setTrackbarPos('Escala centro X', WIN, int(np.clip(x, 0, ancho)))
@@ -68,7 +68,7 @@ while True:
     cv.imshow(WIN, res)
 
     tecla = cv.waitKey(20) & 0xFF
-    if tecla == 27:
+    if tecla == 27 or geo.ventana_cerrada(WIN):
         break
     elif chr(tecla) in MODOS:
         modo = chr(tecla)

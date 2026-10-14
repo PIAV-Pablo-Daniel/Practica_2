@@ -51,7 +51,7 @@ while frame is not None:
     obligatorio.mostrar(frame)
 
     tecla = cv.waitKey(20) & 0xFF
-    if tecla == 27:
+    if tecla == 27 or geo.ventana_cerrada(obligatorio.WIN_1A, obligatorio.WIN_1B, obligatorio.WIN_1C):
         break
     elif tecla == ord('r'):
         obligatorio.reiniciar_1b(ancho, alto)

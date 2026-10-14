@@ -32,14 +32,14 @@ def nada(x):
 # ==========================================
 def crear_1a(ancho, alto):
     cv.namedWindow(WIN_1A)
-    # Los trackbars no admiten negativos: Tx va de 0 a 2*ancho y luego se le
+    # Los trackbars no admiten negativos: "Traslacion X" va de 0 a 2*ancho y luego se le
     # resta 'ancho', así se puede trasladar hacia la izquierda y la derecha.
-    cv.createTrackbar('Tx', WIN_1A, ancho, ancho * 2, nada)
-    cv.createTrackbar('Ty', WIN_1A, alto, alto * 2, nada)
+    cv.createTrackbar('Traslacion X', WIN_1A, ancho, ancho * 2, nada)
+    cv.createTrackbar('Traslacion Y', WIN_1A, alto, alto * 2, nada)
     # Rotación: ángulo y centro de giro
-    cv.createTrackbar('Angulo', WIN_1A, 0, 360, nada)
-    cv.createTrackbar('Giro X', WIN_1A, ancho // 2, ancho, nada)
-    cv.createTrackbar('Giro Y', WIN_1A, alto // 2, alto, nada)
+    cv.createTrackbar('Rotacion (grados)', WIN_1A, 0, 360, nada)
+    cv.createTrackbar('Rotacion centro X', WIN_1A, ancho // 2, ancho, nada)
+    cv.createTrackbar('Rotacion centro Y', WIN_1A, alto // 2, alto, nada)
     # Escalado: factores (en %) y centro de escalado
     cv.createTrackbar('Escala X (%)', WIN_1A, 100, 300, nada)
     cv.createTrackbar('Escala Y (%)', WIN_1A, 100, 300, nada)
@@ -49,11 +49,11 @@ def crear_1a(ancho, alto):
 
 def procesar_1a(img):
     alto, ancho = img.shape[:2]
-    tx = cv.getTrackbarPos('Tx', WIN_1A) - ancho
-    ty = cv.getTrackbarPos('Ty', WIN_1A) - alto
-    angulo = cv.getTrackbarPos('Angulo', WIN_1A)
-    gx = cv.getTrackbarPos('Giro X', WIN_1A)
-    gy = cv.getTrackbarPos('Giro Y', WIN_1A)
+    tx = cv.getTrackbarPos('Traslacion X', WIN_1A) - ancho
+    ty = cv.getTrackbarPos('Traslacion Y', WIN_1A) - alto
+    angulo = cv.getTrackbarPos('Rotacion (grados)', WIN_1A)
+    gx = cv.getTrackbarPos('Rotacion centro X', WIN_1A)
+    gy = cv.getTrackbarPos('Rotacion centro Y', WIN_1A)
     sx = max(cv.getTrackbarPos('Escala X (%)', WIN_1A) / 100.0, 0.01)  # evitar escala 0
     sy = max(cv.getTrackbarPos('Escala Y (%)', WIN_1A) / 100.0, 0.01)
     ex = cv.getTrackbarPos('Escala centro X', WIN_1A)
@@ -122,27 +122,27 @@ def procesar_1b(img):
 def crear_1c():
     cv.namedWindow(WIN_1C)
     # Trackbars de 0 a 2000 con el 1000 como cero (permite valores negativos)
-    cv.createTrackbar('k1 (Radial)', WIN_1C, 1000, 2000, nada)
-    cv.createTrackbar('k2 (Radial)', WIN_1C, 1000, 2000, nada)
-    cv.createTrackbar('k3 (Radial)', WIN_1C, 1000, 2000, nada)
-    cv.createTrackbar('p1 (Tangencial)', WIN_1C, 1000, 2000, nada)
-    cv.createTrackbar('p2 (Tangencial)', WIN_1C, 1000, 2000, nada)
-    cv.createTrackbar('Rejilla', WIN_1C, 1, 1, nada)
+    cv.createTrackbar('Distorsion radial k1', WIN_1C, 1000, 2000, nada)
+    cv.createTrackbar('Distorsion radial k2', WIN_1C, 1000, 2000, nada)
+    cv.createTrackbar('Distorsion radial k3', WIN_1C, 1000, 2000, nada)
+    cv.createTrackbar('Distorsion tangencial p1', WIN_1C, 1000, 2000, nada)
+    cv.createTrackbar('Distorsion tangencial p2', WIN_1C, 1000, 2000, nada)
+    cv.createTrackbar('Mostrar rejilla', WIN_1C, 1, 1, nada)
 
 
 def procesar_1c(img):
     alto, ancho = img.shape[:2]
     # Radiales en [-1, 1]; tangenciales en [-0.1, 0.1] porque su efecto es mucho mayor
-    k1 = (cv.getTrackbarPos('k1 (Radial)', WIN_1C) - 1000) / 1000.0
-    k2 = (cv.getTrackbarPos('k2 (Radial)', WIN_1C) - 1000) / 1000.0
-    k3 = (cv.getTrackbarPos('k3 (Radial)', WIN_1C) - 1000) / 1000.0
-    p1 = (cv.getTrackbarPos('p1 (Tangencial)', WIN_1C) - 1000) / 10000.0
-    p2 = (cv.getTrackbarPos('p2 (Tangencial)', WIN_1C) - 1000) / 10000.0
+    k1 = (cv.getTrackbarPos('Distorsion radial k1', WIN_1C) - 1000) / 1000.0
+    k2 = (cv.getTrackbarPos('Distorsion radial k2', WIN_1C) - 1000) / 1000.0
+    k3 = (cv.getTrackbarPos('Distorsion radial k3', WIN_1C) - 1000) / 1000.0
+    p1 = (cv.getTrackbarPos('Distorsion tangencial p1', WIN_1C) - 1000) / 10000.0
+    p2 = (cv.getTrackbarPos('Distorsion tangencial p2', WIN_1C) - 1000) / 10000.0
 
     K = geo.matriz_camara(ancho, alto)
     coef = np.array([k1, k2, p1, p2, k3])   # orden que espera OpenCV
 
-    if cv.getTrackbarPos('Rejilla', WIN_1C) == 1:
+    if cv.getTrackbarPos('Mostrar rejilla', WIN_1C) == 1:
         img = geo.dibujar_rejilla(img)
     # k > 0 -> barril, k < 0 -> cojín (almohadilla)
     return cv.undistort(img, K, coef)
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     while True:
         mostrar(img)
         tecla = cv.waitKey(20) & 0xFF
-        if tecla == 27:
+        if tecla == 27 or geo.ventana_cerrada(WIN_1A, WIN_1B, WIN_1C):
             break
         elif tecla == ord('r'):
             reiniciar_1b(ancho, alto)

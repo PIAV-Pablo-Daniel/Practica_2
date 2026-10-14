@@ -14,6 +14,15 @@ import sys
 import cv2 as cv
 import numpy as np
 
+# El OpenCV de pip trae Qt SIN fuentes y los nombres de los trackbars salían
+# en blanco. Al importarse, cv2 apunta QT_QPA_FONTDIR a su carpeta vacía; se
+# sobrescribe aquí con fuentes del sistema (Qt la lee al abrir la 1ª ventana).
+for _carpeta in ('/usr/share/fonts/truetype/dejavu', '/usr/share/fonts/truetype',
+                 '/usr/share/fonts'):
+    if os.path.isdir(_carpeta):
+        os.environ['QT_QPA_FONTDIR'] = _carpeta
+        break
+
 # Carpeta del proyecto: las rutas funcionan aunque se lance desde otro sitio
 CARPETA = os.path.dirname(os.path.abspath(__file__))
 
@@ -110,3 +119,15 @@ def dibujar_rejilla(img, paso=40):
     for y in range(0, alto, paso):
         cv.line(res, (0, y), (ancho - 1, y), (255, 255, 255), 1)
     return res
+
+
+def ventana_cerrada(*nombres):
+    """True si el usuario ha cerrado alguna de las ventanas con la X.
+    Sin esto, el siguiente cv.imshow del bucle volvería a abrirla."""
+    for nombre in nombres:
+        try:
+            if cv.getWindowProperty(nombre, cv.WND_PROP_VISIBLE) < 1:
+                return True
+        except cv.error:
+            return True
+    return False
