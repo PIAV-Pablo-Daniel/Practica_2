@@ -1,46 +1,53 @@
+"""
+optativo_especular_reflexion.py - Optativos 7 y 8
+=================================================
+7. Imagen especular con una matriz (da lo mismo que cv.flip(img, 1)).
+8. Reflexión respecto a una recta: dos clics marcan la recta (eje de
+   reflexión) y la imagen se refleja respecto a ella.
+
+Teclas: r borrar la recta · ESC salir
+"""
 import cv2 as cv
 import numpy as np
 
-img = cv.imread('images/cats.png')
+import geometria as geo
+
+img = geo.cargar_imagen('images/cats.png')
 alto, ancho = img.shape[:2]
 pts = []
+
 
 def raton(evento, x, y, flags, param):
     if evento == cv.EVENT_LBUTTONDOWN:
         pts.append((x, y))
-        if len(pts) > 2:
+        if len(pts) > 2:     # solo se guardan los 2 últimos clics
             pts.pop(0)
 
+
+# --- 7. Imagen especular (original | especular) ---
+M_esp = geo.especular_horizontal(ancho)
+especular = cv.warpAffine(img, M_esp[:2, :], (ancho, alto))
+cv.imshow('Especular (original | espejo)', np.hstack([img, especular]))
+
+# --- 8. Reflexión respecto a una recta ---
 cv.namedWindow('Reflexion Recta')
 cv.setMouseCallback('Reflexion Recta', raton)
-
-# 1. Imagen especular (efecto espejo horizontal)
-cv.imshow('Especular (cv.flip)', cv.flip(img, 1))
 
 while True:
     vista = img.copy()
 
-    # Si hay 2 puntos, reflejar respecto a la recta que los une
     if len(pts) == 2:
-        (x1, y1), (x2, y2) = pts[0], pts[1]
-        cv.line(vista, (x1, y1), (x2, y2), (0, 255, 255), 2)
-
-        theta = np.arctan2(y2 - y1, x2 - x1)
-        c, s = np.cos(theta), np.sin(theta)
-
-        # Matriz afín: Trasladar -> Rotar -> Reflejar eje X -> Desrotar -> Destrasladar
-        T1 = np.array([[1, 0, -x1], [0, 1, -y1], [0, 0, 1]], dtype=np.float32)
-        R = np.array([[c, s, 0], [-s, c, 0], [0, 0, 1]], dtype=np.float32)
-        RefX = np.array([[1, 0, 0], [0, -1, 0], [0, 0, 1]], dtype=np.float32)
-        R_inv = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]], dtype=np.float32)
-        T2 = np.array([[1, 0, x1], [0, 1, y1], [0, 0, 1]], dtype=np.float32)
-
-        M = (T2 @ R_inv @ RefX @ R @ T1)[:2, :]
-        vista = cv.warpAffine(img, M, (ancho, alto))
-        cv.line(vista, (x1, y1), (x2, y2), (0, 255, 255), 2)
+        M = geo.reflexion_recta(pts[0], pts[1])
+        vista = cv.warpAffine(img, M[:2, :], (ancho, alto))
+        cv.line(vista, pts[0], pts[1], (0, 255, 255), 2)
+    for p in pts:
+        cv.circle(vista, p, 5, (0, 0, 255), -1)
 
     cv.imshow('Reflexion Recta', vista)
-    if cv.waitKey(20) & 0xFF == 27:
+    tecla = cv.waitKey(20) & 0xFF
+    if tecla == 27:
         break
+    elif tecla == ord('r'):
+        pts.clear()
 
 cv.destroyAllWindows()

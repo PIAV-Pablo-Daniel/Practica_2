@@ -12,7 +12,7 @@ procesos = []
 def ejecutar(script):
     ruta = os.path.join(BASE_DIR, script)
     # Ejecuta en paralelo para no congelar la ventana del menú
-    p = subprocess.Popen([sys.executable, ruta])
+    p = subprocess.Popen([sys.executable, ruta], cwd=BASE_DIR)
     procesos.append(p)
 
 def cerrar_todo():
@@ -49,9 +49,9 @@ lbl_sub.pack(pady=3)
 # Botones de las funcionalidades
 opciones = [
     ("1. Parte Obligatoria (1a, 1b, 1c)", "main.py", "#89B4FA", "#11111B",
-     "Traslaciones, rotación, escala, proyección y distorsión"),
+     "1a trackbars · 1b arrastrar esquinas · 1c coeficientes de lente"),
     ("2. Control con Ratón (Optativo)", "optativo_raton.py", "#A6E3A1", "#11111B",
-     "Arrastrar para mover, clic derecho centro de giro"),
+     "Teclas t/g/e: arrastrar, centro de giro, centro de escalado"),
     ("3. Transformación Afín 3 Puntos", "optativo_afin_3puntos.py", "#F9E2AF", "#11111B",
      "Seleccionar 3 puntos en origen y 3 en destino con ratón"),
     ("4. Transformación Proyectiva 4 Puntos", "optativo_proyectiva_4puntos.py", "#FAB387", "#11111B",
@@ -59,7 +59,7 @@ opciones = [
     ("5. Especular y Eje de Reflexión", "optativo_especular_reflexion.py", "#CBA6F7", "#11111B",
      "Espejo horizontal y reflexión sobre recta trazada en vivo"),
     ("6. Modo Vídeo en Vivo", "optativo_video.py", "#F38BA8", "#11111B",
-     "Obligatorio procesando la webcam en tiempo real")
+     "1a, 1b y 1c sobre videos/Stairs.mp4 (o webcam)")
 ]
 
 btn_container = tk.Frame(root, bg="#1E1E2E")
@@ -70,7 +70,7 @@ for texto, script, color_bg, color_fg, desc in opciones:
     f.pack(fill="x", pady=4)
 
     btn = tk.Button(f, text=texto, font=fuente_btn, bg=color_bg, fg=color_fg,
-                    activebackground="#B4BEFE", relief="flat", cursor="pointinghand",
+                    activebackground="#B4BEFE", relief="flat", cursor="hand2",
                     command=lambda s=script: ejecutar(s), height=1)
     btn.pack(fill="x")
 
@@ -79,7 +79,7 @@ for texto, script, color_bg, color_fg, desc in opciones:
 
 # Botón Salir
 btn_salir = tk.Button(root, text="Cerrar Todo y Salir", font=fuente_btn,
-                      bg="#313244", fg="#F38BA8", relief="flat", cursor="pointinghand",
+                      bg="#313244", fg="#F38BA8", relief="flat", cursor="hand2",
                       command=cerrar_todo)
 btn_salir.pack(pady=15, ipadx=10, ipady=3)
 

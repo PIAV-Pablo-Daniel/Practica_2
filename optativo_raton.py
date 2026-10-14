@@ -1,52 +1,77 @@
+"""
+optativo_raton.py - Optativos 1, 2 y 3 (control con el ratón)
+=============================================================
+Reutiliza la ventana 1a de main.py y añade el ratón. Con el teclado se
+elige qué hace el clic izquierdo:
+  t -> Trasladar: arrastrar la imagen (se ve en tiempo real)
+  g -> marcar el centro de Giro      (punto rojo)
+  e -> marcar el centro de Escalado  (punto azul)
+
+El ratón solo mueve los trackbars; la matriz se calcula con la misma
+función procesar_1a de main.py.
+
+Teclas: t / g / e cambiar de modo · ESC salir
+"""
 import cv2 as cv
 import numpy as np
 
-# 1. Cargar imagen
-img = cv.imread('images/cats.png')
+import geometria as geo
+import main as obligatorio
+
+WIN = obligatorio.WIN_1A
+MODOS = {'t': 'Trasladar (arrastrar)', 'g': 'Centro de giro', 'e': 'Centro de escalado'}
+
+img = geo.cargar_imagen('images/cats.png')
 alto, ancho = img.shape[:2]
 
-# Variables de estado
-tx, ty = 0, 0
-cx, cy = ancho // 2, alto // 2
+modo = 't'
 arrastrando = False
-rx_ini, ry_ini = 0, 0
+raton_ini_x, raton_ini_y = 0, 0
+tx_ini, ty_ini = 0, 0
+
 
 def raton(evento, x, y, flags, param):
-    global tx, ty, cx, cy, arrastrando, rx_ini, ry_ini
+    global arrastrando, raton_ini_x, raton_ini_y, tx_ini, ty_ini
 
-    # Arrastrar con botón izquierdo -> Traslación
-    if evento == cv.EVENT_LBUTTONDOWN:
-        arrastrando, rx_ini, ry_ini = True, x - tx, y - ty
-    elif evento == cv.EVENT_MOUSEMOVE and arrastrando:
-        tx, ty = x - rx_ini, y - ry_ini
-    elif evento == cv.EVENT_LBUTTONUP:
-        arrastrando = False
+    if modo == 't':
+        if evento == cv.EVENT_LBUTTONDOWN:
+            # Guardamos dónde empieza el arrastre y la traslación que había
+            arrastrando = True
+            raton_ini_x, raton_ini_y = x, y
+            tx_ini = cv.getTrackbarPos('Tx', WIN)
+            ty_ini = cv.getTrackbarPos('Ty', WIN)
+        elif evento == cv.EVENT_MOUSEMOVE and arrastrando:
+            # Nueva traslación = la inicial + lo que se ha movido el ratón
+            nuevo_tx = int(np.clip(tx_ini + (x - raton_ini_x), 0, ancho * 2))
+            nuevo_ty = int(np.clip(ty_ini + (y - raton_ini_y), 0, alto * 2))
+            cv.setTrackbarPos('Tx', WIN, nuevo_tx)
+            cv.setTrackbarPos('Ty', WIN, nuevo_ty)
+        elif evento == cv.EVENT_LBUTTONUP:
+            arrastrando = False
 
-    # Botón derecho -> Centro de giro y escalado
-    elif evento == cv.EVENT_RBUTTONDOWN:
-        cx, cy = x, y
+    elif modo == 'g' and evento == cv.EVENT_LBUTTONDOWN:
+        cv.setTrackbarPos('Giro X', WIN, int(np.clip(x, 0, ancho)))
+        cv.setTrackbarPos('Giro Y', WIN, int(np.clip(y, 0, alto)))
 
-cv.namedWindow('Optativo Raton')
-cv.setMouseCallback('Optativo Raton', raton)
-cv.createTrackbar('Angulo', 'Optativo Raton', 0, 360, lambda x: None)
-cv.createTrackbar('Escala (%)', 'Optativo Raton', 100, 300, lambda x: None)
+    elif modo == 'e' and evento == cv.EVENT_LBUTTONDOWN:
+        cv.setTrackbarPos('Escala centro X', WIN, int(np.clip(x, 0, ancho)))
+        cv.setTrackbarPos('Escala centro Y', WIN, int(np.clip(y, 0, alto)))
+
+
+obligatorio.crear_1a(ancho, alto)
+cv.setMouseCallback(WIN, raton)
 
 while True:
-    angulo = cv.getTrackbarPos('Angulo', 'Optativo Raton')
-    escala = max(cv.getTrackbarPos('Escala (%)', 'Optativo Raton') / 100.0, 0.01)
+    res = obligatorio.procesar_1a(img)
+    cv.putText(res, f'Modo: {MODOS[modo]}  (t/g/e)', (10, 25),
+               cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+    cv.imshow(WIN, res)
 
-    # Matriz afín: Rotación + Escala alrededor de (cx, cy)
-    M = cv.getRotationMatrix2D((cx, cy), angulo, escala)
-    # Sumar traslación (tx, ty)
-    M[0, 2] += tx
-    M[1, 2] += ty
-
-    resultado = cv.warpAffine(img, M, (ancho, alto))
-    # Dibujar centro marcado
-    cv.circle(resultado, (cx, cy), 5, (0, 0, 255), -1)
-
-    cv.imshow('Optativo Raton', resultado)
-    if cv.waitKey(20) & 0xFF == 27:
+    tecla = cv.waitKey(20) & 0xFF
+    if tecla == 27:
         break
+    elif chr(tecla) in MODOS:
+        modo = chr(tecla)
+        arrastrando = False
 
 cv.destroyAllWindows()
